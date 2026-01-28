@@ -1,13 +1,13 @@
-package com.yuqoi.jwttemplate;
+package com.yuqoi.jwt_template;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class JwttemplateApplication {
-sdasdasd
+public class JwtTemplateApplication {
+
 	public static void main(String[] args) {
-		SpringApplication.run(JwttemplateApplication.class, args);
+		SpringApplication.run(JwtTemplateApplication.class, args);
 	}
 
 }
