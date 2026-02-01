@@ -1,3 +1,21 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: jwt_template
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+    defer-datasource-initialization: true
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/test_db
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    initialization-mode: always
+    initialize: true
+    continue-on-error: true

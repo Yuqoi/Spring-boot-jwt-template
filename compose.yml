@@ -1,0 +1,16 @@
+name: jwt_template
+services:
+  db:
+    image: postgres:latest
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: test_db
+    volumes:
+      - db_data:/data/postgres
+    ports:
+      - "5432:5432"
+volumes:
+  db_data:
