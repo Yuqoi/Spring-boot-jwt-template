@@ -1,4 +1,4 @@
-package com.yuqoi.jwt_template.entity;
+package com.example.jwt.entity;
 
 import java.time.LocalDate;
 
@@ -12,15 +12,17 @@ import lombok.Setter;
 @Entity(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
 @Getter
+@Setter
 public class User {
+
 	@Id
 	private Long id;
 
 	private String username;
 	private String email;
+
 	private String password;
 	private LocalDate createdAt;
-}
 
+}
