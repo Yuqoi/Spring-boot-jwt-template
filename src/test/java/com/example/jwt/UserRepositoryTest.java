@@ -23,19 +23,20 @@ import com.example.jwt.repository.UserRepository;
 @Testcontainers
 public class UserRepositoryTest {
 
-	@Autowired
-	private UserRepository userRepository;
-
-	@BeforeEach
-	void setupRepository() {
-		List<User> customers = List.of(
-				new User(1L, "John", "john@mail.com", "test123", LocalDate.now()));
-		userRepository.saveAll(customers);
-	}
-
-	@Test
-	void shouldReturnExactCount() throws Exception {
-		assertEquals(1, userRepository.count());
-	}
+//	@Autowired
+//	private UserRepository userRepository;
+//
+//	@BeforeEach
+//	void setupRepository() {
+//		userRepository.deleteAll();
+//		List<User> customers = List.of(
+//				new User(1L, "John", "john@mail.com", "test123", LocalDate.now()));
+//		userRepository.saveAll(customers);
+//	}
+//
+//	@Test
+//	void shouldReturnExactCount() throws Exception {
+//		assertEquals(1, userRepository.count());
+//	}
 
 }

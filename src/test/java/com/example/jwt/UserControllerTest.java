@@ -45,7 +45,6 @@ public class UserControllerTest {
 		userList.addAll(
 				List.of(
 						new UserDto("yuqoi", LocalDate.now())));
-
 	}
 
 	@Test

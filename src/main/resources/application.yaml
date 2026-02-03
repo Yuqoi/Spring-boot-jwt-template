@@ -9,14 +9,14 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
-      show-sql: true
     defer-datasource-initialization: true
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/test_db
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-    initialization-mode: always
-    initialize: true
-    continue-on-error: true
     name: jwt
+
+jwt:
+  secret: 4b0fc642773f223f3160bbb44402b4150fc124c5
+  duration: 86400000
