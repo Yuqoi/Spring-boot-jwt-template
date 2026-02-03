@@ -1,0 +1,61 @@
+package com.example.jwt.controller;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.example.jwt.request.RegisterRequest;
+import com.example.jwt.response.JwtDetailsResponse;
+import com.example.jwt.response.RegisterResponse;
+import com.example.jwt.service.AuthService;
+
+import static com.example.jwt.utils.ObjectToStringConverter.asJsonString;
+
+@AutoConfigureMockMvc
+@WebMvcTest(AuthController.class)
+public class AuthControllerTest {
+
+    @Autowired
+    MockMvc mockMvc;
+
+    @MockitoBean
+    private AuthService authService;
+
+    @BeforeEach
+    public void before() {
+        when(authService.register(new RegisterRequest("Yuqoi", "email@gmail.com", "password")))
+                .thenReturn(new RegisterResponse("", "", new JwtDetailsResponse("asdas", "asdas")));
+    }
+
+    @Test
+    void shouldRegisterAndReturnJwtToken() throws Exception {
+        final RegisterRequest registerRequest = new RegisterRequest(
+                "Yuqoi",
+                "email@gmail.com",
+                "password");
+
+        MvcResult result = mockMvc.perform(
+                post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(registerRequest)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String json = result.getResponse().getContentAsString();
+        ObjectMapper objectMapper = new ObjectMapper();
+        assertEquals(RegisterResponse.class, objectMapper.readValue(json, RegisterResponse.class).getClass());
+    }
+
+}

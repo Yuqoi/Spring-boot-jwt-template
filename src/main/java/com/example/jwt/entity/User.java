@@ -1,10 +1,15 @@
 package com.example.jwt.entity;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,15 +19,31 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 public class User {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@NotBlank(message = "Username shouldnt be blank")
+	@Column(unique = true)
 	private String username;
+
+	@Column(unique = true)
+	@Email
+	@NotBlank(message = "Email shouldnt be blank")
 	private String email;
 
+	@Size(max = 32)
+	@NotBlank(message = "Password shouldnt be blank")
 	private String password;
+
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private Set<Role> roles = new HashSet<>();
+
+	private LocalDate lastUpdatedAt;
 	private LocalDate createdAt;
 
 }
