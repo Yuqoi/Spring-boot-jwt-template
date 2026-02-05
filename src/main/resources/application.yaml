@@ -9,7 +9,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
-#    defer-datasource-initialization: true
+  #    defer-datasource-initialization: true
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/test_db
@@ -21,5 +21,5 @@ spring:
 #      mode: always
 
 jwt:
-  secret: 4b0fc642773f223f3160bbb44402b4150fc124c5
+  secret: 82d9252f0d8b134eb88c3f463ef157b08847d15b81535bb9e1b0005d69fa450288d1f1ec
   duration: 86400000

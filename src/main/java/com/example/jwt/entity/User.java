@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.data.annotation.CreatedDate;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -21,7 +23,6 @@ import lombok.Setter;
 @Setter
 @Builder
 public class User {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -35,7 +36,6 @@ public class User {
 	@NotBlank(message = "Email shouldnt be blank")
 	private String email;
 
-	@Size(max = 32)
 	@NotBlank(message = "Password shouldnt be blank")
 	private String password;
 
@@ -43,7 +43,10 @@ public class User {
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
 
-	private LocalDate lastUpdatedAt;
+	private LocalDate updatedAt;
 	private LocalDate createdAt;
 
+	@OneToOne(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	@PrimaryKeyJoinColumn
+	private AccessToken accessToken;
 }

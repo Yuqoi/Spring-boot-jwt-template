@@ -1,14 +1,18 @@
 package com.example.jwt.service;
 
+import com.example.jwt.entity.AccessToken;
 import com.example.jwt.entity.Role;
 import com.example.jwt.entity.Roles;
 import com.example.jwt.entity.User;
+import com.example.jwt.repository.AccessTokenRepository;
 import com.example.jwt.repository.RoleRepository;
 import com.example.jwt.repository.UserRepository;
 import com.example.jwt.request.RegisterRequest;
 import com.example.jwt.response.JwtDetailsResponse;
 import com.example.jwt.response.RegisterResponse;
+import com.example.jwt.service.jwt.JwtUtils;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
 
@@ -28,6 +32,12 @@ public class AuthService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private AccessTokenRepository accessTokenRepository;
+
+    @Autowired
+    private JwtUtils jwtUtils;
+
     public RegisterResponse register(RegisterRequest request) {
 
         Optional<Role> optionalRole = roleRepository.findByRoleName(Roles.ROLE_USER);
@@ -41,10 +51,22 @@ public class AuthService {
                 .email(request.email())
                 .password(encoder.encode(request.password()))
                 .roles(Set.of(userRole))
+                .createdAt(LocalDate.now())
+                .updatedAt(LocalDate.now())
                 .build();
 
+        AccessToken accessToken = AccessToken.createAccessToken(newUser);
+
         userRepository.save(newUser);
-        return null;
+        accessTokenRepository.save(accessToken);
+
+        String jwtToken = jwtUtils.generateJwtToken(newUser.getEmail());
+        String accessTokenStr = accessToken.getAccessToken();
+
+        return new RegisterResponse(
+                null, "Authenticated successfully", new JwtDetailsResponse(
+                        accessTokenStr,
+                        jwtToken));
     }
 
 }
