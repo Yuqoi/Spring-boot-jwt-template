@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.springframework.data.annotation.CreatedDate;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
