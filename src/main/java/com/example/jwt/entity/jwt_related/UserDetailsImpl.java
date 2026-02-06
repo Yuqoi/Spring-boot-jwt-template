@@ -27,6 +27,9 @@ public class UserDetailsImpl implements UserDetails {
 				.toList();
 		this.authorities = roleNames.stream()
 				.map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+		for (GrantedAuthority s : authorities) {
+			System.out.println(s.getAuthority());
+		}
 	}
 
 	@Override
@@ -41,7 +44,7 @@ public class UserDetailsImpl implements UserDetails {
 
 	@Override
 	public boolean isEnabled() {
-		return false;
+		return true;
 	}
 
 	@Override
