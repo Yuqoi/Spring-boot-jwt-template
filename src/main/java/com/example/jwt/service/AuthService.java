@@ -4,6 +4,7 @@ import com.example.jwt.entity.AccessToken;
 import com.example.jwt.entity.Role;
 import com.example.jwt.entity.Roles;
 import com.example.jwt.entity.User;
+import com.example.jwt.exception.UserAlreadyCreatedException;
 import com.example.jwt.repository.AccessTokenRepository;
 import com.example.jwt.repository.RoleRepository;
 import com.example.jwt.repository.UserRepository;
@@ -39,6 +40,10 @@ public class AuthService {
     private JwtUtils jwtUtils;
 
     public RegisterResponse register(RegisterRequest request) {
+
+        if (userRepository.findByEmail(request.email()).isPresent()) {
+            throw new UserAlreadyCreatedException("User is already created on those credentials");
+        }
 
         Optional<Role> optionalRole = roleRepository.findByRoleName(Roles.ROLE_USER);
         if (optionalRole.isEmpty()) {
