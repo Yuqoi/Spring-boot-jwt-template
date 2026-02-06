@@ -42,6 +42,8 @@ public class WebSecurityConfig {
 						org.springframework.security.config.http.SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(a -> a
 						.requestMatchers("/api/v1/auth/**").permitAll()
+						.requestMatchers("/api/v1/test/user").hasAuthority("ROLE_USER")
+						.requestMatchers("/api/v1/test/admin").hasAuthority("ROLE_ADMIN")
 						.anyRequest().authenticated());
 
 		http.authenticationProvider(authenticationProvider());

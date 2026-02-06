@@ -1,5 +1,6 @@
 package com.example.jwt.controller;
 
+import com.example.jwt.repository.UserRepository;
 import com.example.jwt.request.RegisterRequest;
 import com.example.jwt.response.RegisterResponse;
 import com.example.jwt.service.AuthService;
