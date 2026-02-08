@@ -3,14 +3,18 @@ package com.example.jwt.validation;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.hamcrest.core.IsNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -68,6 +72,24 @@ public class UserControllerValidationTest {
 		template(new RegisterRequest(
 				"adasdasd",
 				"username@gmail.com", null));
+	}
+
+	@Test
+	void shouldReturnExceptionForPasswordTooLong() throws Exception {
+		template(new RegisterRequest(
+				"adasdasd",
+				"username@gmail.com", "asdasdasdasdasdasdasdasdasdasdasd"));
+	}
+
+	@Test
+	void shouldReturnBadRequestForNullBody() throws Exception {
+		mockMvc.perform(post("/api/v1/auth/register")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isBadRequest())
+				.andExpect(result -> assertInstanceOf(HttpMessageNotReadableException.class,
+						result.getResolvedException()))
+				.andExpect(content().json("{'message':'Required body is missing'}"))
+				.andExpect(jsonPath("$.details").value(IsNull.nullValue()));
 	}
 
 	private void template(RegisterRequest register) throws Exception {

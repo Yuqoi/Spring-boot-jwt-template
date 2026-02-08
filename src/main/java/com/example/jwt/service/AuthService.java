@@ -44,8 +44,9 @@ public class AuthService {
 
     @Transactional
     public RegisterResponse register(RegisterRequest request) {
-        if (userRepository.findByEmail(request.email()).isPresent()) {
-            throw new UserAlreadyCreatedException("User is already created on those credentials");
+        boolean exists = userRepository.existsByUsernameOrEmail(request.username(), request.email());
+        if (exists) {
+            throw new UserAlreadyCreatedException("User is already created on those credentials [username/email]");
         }
 
         Optional<Role> optionalRole = roleRepository.findByRoleName(Roles.ROLE_USER);
@@ -53,7 +54,6 @@ public class AuthService {
             throw new RuntimeException("Role not found");
         }
         Role userRole = optionalRole.get();
-
         User newUser = User.builder()
                 .username(request.username())
                 .email(request.email())

@@ -4,6 +4,7 @@ package com.example.jwt.exception;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -33,4 +34,13 @@ public class GlobalExceptionHandler {
 		return response;
 	}
 
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	public DefaultResponse handleUserAlreadyCreated(HttpMessageNotReadableException ex) {
+		DefaultResponse response = new DefaultResponse(
+				MethodArgumentNotValidException.class.getName(),
+				"Required body is missing",
+				null);
+		return response;
+	}
 }

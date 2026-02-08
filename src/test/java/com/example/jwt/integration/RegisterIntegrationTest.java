@@ -1,18 +1,14 @@
 
 package com.example.jwt.integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.Optional;
 
 import com.example.jwt.repository.UserRepository;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +21,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.TestcontainersConfiguration;
 
-import com.example.jwt.repository.RoleRepository;
 import com.example.jwt.request.RegisterRequest;
 import com.example.jwt.response.DefaultResponse;
 import com.example.jwt.utils.ObjectToStringConverter;
@@ -38,7 +33,7 @@ import tools.jackson.databind.ObjectMapper;
 @AutoConfigureMockMvc
 @Testcontainers
 @Slf4j
-public class RegisterTest {
+public class RegisterIntegrationTest {
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -74,10 +69,38 @@ public class RegisterTest {
 		mockMvc.perform(post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON)
 				.content(ObjectToStringConverter.asJsonString(request)))
 				.andExpect(status().isOk());
-		RegisterRequest request2 = new RegisterRequest("Yuqoi", "email@gmail.com", "test123");
-		mockMvc.perform(post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON)
-				.content(ObjectToStringConverter.asJsonString(request)))
-				.andExpect(status().isNotFound());
+
+		RegisterRequest request2 = new RegisterRequest("Yuqosdas", "email@gmail.com", "test123");
+		MvcResult result = mockMvc.perform(post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON)
+				.content(ObjectToStringConverter.asJsonString(request2)))
+				.andExpect(status().isNotFound()).andReturn();
+
+		String responseBody = result.getResponse().getContentAsString();
+		ObjectMapper mapper = new ObjectMapper();
+		DefaultResponse gottenResponse = mapper.readValue(responseBody, DefaultResponse.class);
+
+		assertInstanceOf(DefaultResponse.class, gottenResponse);
+		assertEquals("User is already created on those credentials", gottenResponse.message());
 	}
 
+	@Test
+	void shouldreturnErrorForDuplicatedUsername() throws Exception {
+		RegisterRequest request = new RegisterRequest("Yuqoi", "email@gmail.com", "test123");
+		mockMvc.perform(post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON)
+				.content(ObjectToStringConverter.asJsonString(request)))
+				.andExpect(status().isOk());
+
+		RegisterRequest request2 = new RegisterRequest("Yuqoi", "teeeest@gmail.com", "test123");
+		MvcResult result = mockMvc.perform(post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON)
+				.content(ObjectToStringConverter.asJsonString(request2)))
+				.andExpect(status().isNotFound())
+				.andReturn();
+
+		String responseBody = result.getResponse().getContentAsString();
+		ObjectMapper mapper = new ObjectMapper();
+		DefaultResponse gottenResponse = mapper.readValue(responseBody, DefaultResponse.class);
+
+		assertInstanceOf(DefaultResponse.class, gottenResponse);
+		assertEquals("User is already created on those credentials", gottenResponse.message());
+	}
 }
