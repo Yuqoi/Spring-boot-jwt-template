@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.NotNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,7 +17,9 @@ import com.example.jwt.entity.User;
 public class UserDetailsImpl implements UserDetails {
 
 	private String email;
+	@JsonIgnore
 	private String password;
+
 	private List<GrantedAuthority> authorities;
 
 	public UserDetailsImpl(final User user) {
@@ -27,9 +31,6 @@ public class UserDetailsImpl implements UserDetails {
 				.toList();
 		this.authorities = roleNames.stream()
 				.map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-		for (GrantedAuthority s : authorities) {
-			System.out.println(s.getAuthority());
-		}
 	}
 
 	@Override

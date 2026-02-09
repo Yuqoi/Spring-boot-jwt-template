@@ -3,6 +3,7 @@ package com.example.jwt.exception;
 
 import java.util.Optional;
 
+import jakarta.security.auth.message.AuthException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -25,22 +26,21 @@ public class GlobalExceptionHandler {
 	}
 
 	@ResponseStatus(HttpStatus.NOT_FOUND)
-	@ExceptionHandler(UserAlreadyCreatedException.class)
-	public DefaultResponse handleUserAlreadyCreated(UserAlreadyCreatedException ex) {
-		DefaultResponse response = new DefaultResponse(
-				MethodArgumentNotValidException.class.getName(),
-				"User is already created on those credentials",
+	@ExceptionHandler({ UserNotFoundException.class, AuthException.class, UserAlreadyCreatedException.class,
+			ServerErrorException.class })
+	public DefaultResponse handleMissingUser(UserNotFoundException ex) {
+		return new DefaultResponse(
+				UserNotFoundException.class.getName(),
+				ex.getMessage(),
 				null);
-		return response;
 	}
 
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	public DefaultResponse handleUserAlreadyCreated(HttpMessageNotReadableException ex) {
-		DefaultResponse response = new DefaultResponse(
+		return new DefaultResponse(
 				MethodArgumentNotValidException.class.getName(),
 				"Required body is missing",
 				null);
-		return response;
 	}
 }

@@ -1,7 +1,9 @@
 package com.example.jwt.controller;
 
 import com.example.jwt.repository.UserRepository;
+import com.example.jwt.request.LoginRequest;
 import com.example.jwt.request.RegisterRequest;
+import com.example.jwt.response.DefaultResponse;
 import com.example.jwt.response.RegisterResponse;
 import com.example.jwt.service.AuthService;
 
@@ -26,4 +28,8 @@ public class AuthController {
         return ResponseEntity.ok(authService.register(registerRequest));
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<DefaultResponse> login(@RequestBody @Valid LoginRequest loginRequest) throws Exception {
+        return ResponseEntity.ok(authService.login(loginRequest));
+    }
 }
