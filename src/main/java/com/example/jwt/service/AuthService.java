@@ -1,28 +1,35 @@
 package com.example.jwt.service;
 
-import com.example.jwt.entity.AccessToken;
-import com.example.jwt.entity.Role;
-import com.example.jwt.entity.Roles;
-import com.example.jwt.entity.User;
-import com.example.jwt.entity.jwt_related.UserDetailsImpl;
-import com.example.jwt.exception.UserAlreadyCreatedException;
-import com.example.jwt.repository.AccessTokenRepository;
-import com.example.jwt.repository.RoleRepository;
-import com.example.jwt.repository.UserRepository;
-import com.example.jwt.request.RegisterRequest;
-import com.example.jwt.response.JwtDetailsResponse;
-import com.example.jwt.response.RegisterResponse;
-import com.example.jwt.service.jwt.JwtUtils;
-
-import jakarta.transaction.Transactional;
-
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.example.jwt.entity.AccessToken;
+import com.example.jwt.entity.Role;
+import com.example.jwt.entity.Roles;
+import com.example.jwt.entity.User;
+import com.example.jwt.entity.jwt_related.UserDetailsImpl;
+import com.example.jwt.exception.ServerErrorException;
+import com.example.jwt.exception.UserAlreadyCreatedException;
+import com.example.jwt.exception.UserNotFoundException;
+import com.example.jwt.repository.RoleRepository;
+import com.example.jwt.request.LoginRequest;
+import com.example.jwt.request.RegisterRequest;
+import com.example.jwt.response.DefaultResponse;
+import com.example.jwt.response.JwtDetailsResponse;
+import com.example.jwt.response.RegisterResponse;
+import com.example.jwt.service.jwt.JwtUtils;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class AuthService {
@@ -34,19 +41,24 @@ public class AuthService {
     private RoleRepository roleRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private AccessTokenService accessTokenService;
 
     @Autowired
-    private AccessTokenRepository accessTokenRepository;
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private JwtUtils jwtUtils;
 
     @Transactional
     public RegisterResponse register(RegisterRequest request) {
-        boolean exists = userRepository.existsByUsernameOrEmail(request.username(), request.email());
+        boolean exists = userService.existsByUsernameOrEmail(request.username(),
+                request.email());
         if (exists) {
-            throw new UserAlreadyCreatedException("User is already created on those credentials [username/email]");
+            throw new UserAlreadyCreatedException(
+                    "User is already created on those credentials [username/email]");
         }
 
         Optional<Role> optionalRole = roleRepository.findByRoleName(Roles.ROLE_USER);
@@ -63,18 +75,47 @@ public class AuthService {
                 .updatedAt(LocalDate.now())
                 .build();
 
-        AccessToken accessToken = AccessToken.createAccessToken(newUser);
+        AccessToken accessToken = accessTokenService.create(newUser);
 
-        userRepository.save(newUser);
-        accessTokenRepository.save(accessToken);
+        userService.saveUser(newUser);
+        accessTokenService.saveAccessToken(accessToken);
 
         String jwtToken = jwtUtils.generateJwtToken(newUser.getEmail());
         String accessTokenStr = accessToken.getAccessToken();
 
         return new RegisterResponse(
-                null, "Authenticated successfully", new JwtDetailsResponse(
+                null,
+                "Authenticated successfully",
+                new JwtDetailsResponse(
                         accessTokenStr,
                         jwtToken));
     }
 
+    public DefaultResponse login(LoginRequest loginRequest) throws Exception {
+        Authentication authentication;
+        try {
+            authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.email(),
+                            loginRequest.password()));
+        } catch (Exception ex) {
+            // Throwing basic exception because i dont want user to know which specific
+            // error he got.
+            throw new UserNotFoundException(
+                    "Authentication failed for these credentials");
+        }
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwtToken = jwtUtils.generateJwtToken(authentication);
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        String accessTokenStr = accessTokenService.updateAccessToken(userDetails
+                .getUsername())
+                .getAccessToken();
+
+        return new DefaultResponse(
+                null,
+                "successfully authenticated",
+                new JwtDetailsResponse(
+                        accessTokenStr,
+                        jwtToken));
+    }
 }

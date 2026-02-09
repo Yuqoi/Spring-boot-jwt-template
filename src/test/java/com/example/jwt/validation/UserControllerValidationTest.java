@@ -104,7 +104,7 @@ public class UserControllerValidationTest {
 		DefaultResponse gottenResponse = objMappper.readValue(stringResponse,
 				DefaultResponse.class);
 
-		assertTrue(gottenResponse.details().isEmpty());
+		assertNull(gottenResponse.details());
 		assertInstanceOf(MethodArgumentNotValidException.class, result.getResolvedException());
 	}
 

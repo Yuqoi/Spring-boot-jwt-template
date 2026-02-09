@@ -39,12 +39,4 @@ public class AccessToken {
 
 	private LocalDateTime expiresAt;
 
-	public static AccessToken createAccessToken(User user) {
-		AccessToken at = new AccessToken(
-				null,
-				UUID.randomUUID().toString(),
-				user, LocalDateTime.now().plusHours(1L));
-		user.setAccessToken(at);
-		return at;
-	}
 }
