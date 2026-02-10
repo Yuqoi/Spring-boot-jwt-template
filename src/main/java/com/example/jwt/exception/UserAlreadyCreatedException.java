@@ -1,9 +1,9 @@
 package com.example.jwt.exception;
 
-public class UserAlreadyCreatedException extends RuntimeException {
+import org.springframework.security.core.AuthenticationException;
 
-	public UserAlreadyCreatedException(String msg) {
-		super(msg);
-	}
-
+public class UserAlreadyCreatedException extends AuthenticationException {
+  public UserAlreadyCreatedException(String msg) {
+    super(msg);
+  }
 }

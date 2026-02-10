@@ -1,14 +1,10 @@
 package com.example.jwt.controller;
 
-import com.example.jwt.repository.UserRepository;
 import com.example.jwt.request.LoginRequest;
 import com.example.jwt.request.RegisterRequest;
 import com.example.jwt.response.DefaultResponse;
-import com.example.jwt.response.RegisterResponse;
 import com.example.jwt.service.AuthService;
-
 import jakarta.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,16 +16,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
+  @Autowired private AuthService authService;
 
-    @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> register(@RequestBody @Valid RegisterRequest registerRequest) {
-        return ResponseEntity.ok(authService.register(registerRequest));
-    }
+  @PostMapping("/register")
+  public ResponseEntity<DefaultResponse> register(
+      @RequestBody @Valid RegisterRequest registerRequest) throws Exception {
+    return ResponseEntity.ok(authService.register(registerRequest));
+  }
 
-    @PostMapping("/login")
-    public ResponseEntity<DefaultResponse> login(@RequestBody @Valid LoginRequest loginRequest) throws Exception {
-        return ResponseEntity.ok(authService.login(loginRequest));
-    }
+  @PostMapping("/login")
+  public ResponseEntity<DefaultResponse> login(@RequestBody @Valid LoginRequest loginRequest)
+      throws Exception {
+    return ResponseEntity.ok(authService.login(loginRequest));
+  }
 }
