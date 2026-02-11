@@ -1,10 +1,10 @@
-
 package com.example.jwt.exception;
 
-public class UserNotFoundException extends RuntimeException {
+import org.springframework.security.core.AuthenticationException;
 
-	public UserNotFoundException(String msg) {
-		super(msg);
-	}
+public class UserNotFoundException extends AuthenticationException {
 
+  public UserNotFoundException(String msg) {
+    super(msg);
+  }
 }
