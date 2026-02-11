@@ -33,9 +33,7 @@ public class AccessTokenService {
   public AccessToken updateAccessToken(String email) {
     Optional<AccessToken> optional = repository.findByUser_Email(email);
 
-    System.out.println("finding");
     if (optional.isEmpty()) {
-      System.out.println("is empty");
       return create(email);
     }
 
