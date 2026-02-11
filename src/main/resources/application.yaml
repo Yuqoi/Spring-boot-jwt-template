@@ -1,3 +1,25 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
-    name: jwt_template
+    name: jwt
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+  #    defer-datasource-initialization: true
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/test_db
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    name: jwt
+#  sql:
+#    init:
+#      mode: always
+
+jwt:
+  secret: 82d9252f0d8b134eb88c3f463ef157b08847d15b81535bb9e1b0005d69fa450288d1f1ec
+  duration: 86400000
