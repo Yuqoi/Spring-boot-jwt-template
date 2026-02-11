@@ -42,6 +42,7 @@ public class AuthService {
       throw new UserAlreadyCreatedException(
           "User is already created on those credentials [username/email]");
     }
+
     Role userRole = roleService.findRoleByName(Roles.ROLE_USER);
     User newUser =
         User.builder()
@@ -54,6 +55,7 @@ public class AuthService {
             .build();
 
     AccessToken accessToken = accessTokenService.create(newUser);
+    userService.saveUser(newUser);
 
     String jwtToken = jwtUtils.generateJwtToken(newUser.getEmail());
     String accessTokenStr = accessToken.getAccessToken();
