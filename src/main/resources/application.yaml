@@ -16,9 +16,6 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     name: jwt
-#  sql:
-#    init:
-#      mode: always
 
 jwt:
   secret: 82d9252f0d8b134eb88c3f463ef157b08847d15b81535bb9e1b0005d69fa450288d1f1ec
