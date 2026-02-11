@@ -25,7 +25,8 @@ public class GlobalExceptionHandler {
     UserNotFoundException.class,
     AuthException.class,
     UserAlreadyCreatedException.class,
-    ServerErrorException.class
+    ServerErrorException.class,
+    AccessTokenExpiredException.class
   })
   public DefaultResponse handleMissingUser(Exception ex) {
     return new DefaultResponse(ex.getClass().getName(), ex.getMessage(), null);

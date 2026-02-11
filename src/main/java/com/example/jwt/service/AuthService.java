@@ -5,16 +5,16 @@ import com.example.jwt.entity.Role;
 import com.example.jwt.entity.Roles;
 import com.example.jwt.entity.User;
 import com.example.jwt.entity.jwt_related.UserDetailsImpl;
+import com.example.jwt.exception.AccessTokenExpiredException;
 import com.example.jwt.exception.UserAlreadyCreatedException;
 import com.example.jwt.exception.UserNotFoundException;
-import com.example.jwt.repository.RoleRepository;
 import com.example.jwt.request.LoginRequest;
 import com.example.jwt.request.RegisterRequest;
 import com.example.jwt.response.DefaultResponse;
 import com.example.jwt.response.JwtDetailsResponse;
 import com.example.jwt.service.jwt.JwtUtils;
 import java.time.LocalDate;
-import java.util.Optional;
+import java.time.LocalDateTime;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,16 +29,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
   @Autowired private PasswordEncoder encoder;
-
-  @Autowired private RoleRepository roleRepository;
-
   @Autowired private AccessTokenService accessTokenService;
-
   @Autowired private AuthenticationManager authenticationManager;
-
   @Autowired private UserService userService;
-
   @Autowired private JwtUtils jwtUtils;
+  @Autowired private RoleService roleService;
 
   @Transactional
   public DefaultResponse register(RegisterRequest request) throws Exception {
@@ -47,12 +42,7 @@ public class AuthService {
       throw new UserAlreadyCreatedException(
           "User is already created on those credentials [username/email]");
     }
-
-    Optional<Role> optionalRole = roleRepository.findByRoleName(Roles.ROLE_USER);
-    if (optionalRole.isEmpty()) {
-      throw new Exception("Role not found");
-    }
-    Role userRole = optionalRole.get();
+    Role userRole = roleService.findRoleByName(Roles.ROLE_USER);
     User newUser =
         User.builder()
             .username(request.username())
@@ -64,9 +54,6 @@ public class AuthService {
             .build();
 
     AccessToken accessToken = accessTokenService.create(newUser);
-
-    userService.saveUser(newUser);
-    accessTokenService.saveAccessToken(accessToken);
 
     String jwtToken = jwtUtils.generateJwtToken(newUser.getEmail());
     String accessTokenStr = accessToken.getAccessToken();
@@ -94,5 +81,22 @@ public class AuthService {
 
     return new DefaultResponse(
         null, "successfully authenticated", new JwtDetailsResponse(accessTokenStr, jwtToken));
+  }
+
+  @Transactional
+  public DefaultResponse getJwtTokenFromRefreshToken(
+      UserDetailsImpl userDetails, String oldAccessToken) throws Exception {
+    User user = userService.findUser(userDetails.getUsername());
+    boolean isAccessTokenNotExpired =
+        accessTokenService.isAccessTokenNotExpired(oldAccessToken, user, LocalDateTime.now());
+    if (!isAccessTokenNotExpired) {
+      throw new AccessTokenExpiredException("Access token is expired or User is not right");
+    }
+
+    String jwtToken = jwtUtils.generateJwtToken(user.getEmail());
+    String accessTokenStr = accessTokenService.updateAccessToken(user.getEmail()).getAccessToken();
+
+    return new DefaultResponse(
+        null, "JWT Token obtained successfully", new JwtDetailsResponse(accessTokenStr, jwtToken));
   }
 }
