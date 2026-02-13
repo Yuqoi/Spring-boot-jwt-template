@@ -1,6 +1,7 @@
+name: jwt
 services:
   postgres:
-    image: "postgres:latest"
+    image: "postgres:16"
     env_file:
       - .env
     environment:
